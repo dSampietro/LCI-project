@@ -87,7 +87,8 @@ let rec generate_cfg (cfg: CFG.t) (stmt: MiniImp.stmt) (id: CFG.label): (CFG.t *
 
 
 
-
-
+let program_to_cfg (p: MiniImp.stmt) : CFG.t = 
+  let (g, _) = Lib.Generate.generate_cfg (Lib.CFG.empty()) p 0 
+  in g
 
 
