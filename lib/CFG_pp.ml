@@ -30,7 +30,7 @@ let string_of_node (n: node) : string =
   | Expression(id, exp) -> Printf.sprintf "Node %d: %s" id (string_of_exp exp)
 
 let pp_cfg (cfg: t) =
-  let node_strings = List.map string_of_node (get_nodes cfg) in
+  let node_strings = List.map string_of_node (List.rev @@ get_nodes cfg) in
   let edge_strings =
     List.map
       (fun (id1, id2) -> Printf.sprintf "Edge: %d -> %d" id1 id2)
