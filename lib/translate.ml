@@ -15,6 +15,11 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) : (MiniRis
     | Plus(Aval(n), Aval(m)) -> 
       let regDest = Register.get_new_register () in
       ([LoadI(n+m, regDest)], regDest)
+    
+    | Plus(Var(x), Aval(n)) | Plus(Aval(n), Var(x)) -> 
+      let _, reg1 = exp_translate env (Var(x)) in
+      let regDest = Register.get_new_register () in
+      ([AddI(reg1, n, regDest)], regDest)
 
     | Plus(e1, e2) -> 
       let code1, reg1 = exp_translate env e1 in
@@ -23,12 +28,31 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) : (MiniRis
       (code1 @ code2 @ [AddR(reg1, reg2, regDest)], regDest)
 
 
+    | Minus(Aval(n), Aval(m)) -> 
+      let regDest = Register.get_new_register () in
+      ([LoadI(n-m, regDest)], regDest)
+    
+    | Minus(Var(x), Aval(n)) -> 
+      let _, reg1 = exp_translate env (Var(x)) in
+      let regDest = Register.get_new_register () in
+      ([SubI(reg1, n, regDest)], regDest)
+
     | Minus(e1, e2) ->
       let code1, reg1 = exp_translate env e1 in
       let code2, reg2 = exp_translate env e2 in
       let regDest = Register.get_new_register () in
       (code1 @ code2 @ [SubR(reg1, reg2, regDest)], regDest)
 
+
+    | Times(Aval(n), Aval(m)) -> 
+      let regDest = Register.get_new_register () in
+      ([LoadI(n*m, regDest)], regDest)
+    
+    | Times(Var(x), Aval(n)) | Times(Aval(n), Var(x)) -> 
+      let _, reg1 = exp_translate env (Var(x)) in
+      let regDest = Register.get_new_register () in
+      ([MultI(reg1, n, regDest)], regDest)
+    
     | Times(e1, e2) ->
       let code1, reg1 = exp_translate env e1 in
       let code2, reg2 = exp_translate env e2 in
@@ -123,3 +147,7 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
     [Label body_label] @
     body_code @
     [Jump start_label; Label end_label]
+
+
+let get_code_string (code: MiniRisc.exp list) : string = 
+  String.concat "" (List.map MiniRisc_pp.string_of_risc_exp code)

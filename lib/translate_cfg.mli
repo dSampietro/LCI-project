@@ -1,0 +1,1 @@
+val translate_cfg: MiniImp_cfg.miniImp_cfg -> MiniRisc_cfg.miniRisc_cfg
