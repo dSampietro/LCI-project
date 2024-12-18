@@ -135,6 +135,8 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
     else_code @
     [Label end_label]
 
+  | While(Bval(false), _) -> []
+
   | While(cond, body_stmt) -> 
     let start_label = "Lstart" in
     let body_label = "Lbody" in
