@@ -19,7 +19,7 @@ let () =
       )
     )
   in
-  let g = Lib.Generate_v2.program_to_cfg p in
+  let g = Lib.Generate.program_to_cfg p in
   let g = Lib.Translate_cfg.translate_cfg g in
   Lib.MiniRisc_cfg.pp_cfg g
   
