@@ -10,7 +10,12 @@ let string_of_register (r: register) : string =  "r" ^ (string_of_int r)
   *)
 
 
-let register_counter = ref (-1) (* first register is r0*)
+(* Report:
+  r0 = r_in
+  r1 = r_out
+  _ = other registers
+*)
+let register_counter = ref (1) (* first register is 2*)
 let get_new_register () : register = 
   incr register_counter;
   (* Register(!register_counter) *)
