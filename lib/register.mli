@@ -1,5 +1,4 @@
-type register = 
-  | Register of int
+type register = int
 
 val string_of_register: register -> string
 val get_new_register: unit -> register

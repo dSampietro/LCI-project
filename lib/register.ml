@@ -1,15 +1,20 @@
-type register = 
+type register = int
+  (*
   | Register of int
+  *)
 
-let string_of_register (r: register) : string =
+let string_of_register (r: register) : string =  "r" ^ (string_of_int r)
+  (*
   match r with 
   | Register(n) -> "r" ^ (string_of_int n)
+  *)
 
 
 let register_counter = ref (-1) (* first register is r0*)
 let get_new_register () : register = 
   incr register_counter;
-  Register(!register_counter)
+  (* Register(!register_counter) *)
+  !register_counter
 
 
 type label = string
