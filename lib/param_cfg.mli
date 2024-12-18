@@ -26,3 +26,5 @@ val add_edge: 'a cfg -> label -> label -> 'a cfg
 val get_nodes: 'a cfg -> 'a node list
 val get_edges: 'a cfg -> (label * label) list
 val length: 'a cfg -> int
+val get_labels: 'a cfg -> label list
+val successors: 'a cfg -> label -> label list 
