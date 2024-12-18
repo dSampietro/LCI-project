@@ -1,3 +1,5 @@
+(* Report: label always start from 0 *)
+
 type label = int
 
 let label_counter = ref(-1)
@@ -39,12 +41,4 @@ let add_edge (cfg: 'a cfg) (id1: label) (id2: label) : 'a cfg =
 let get_nodes (cfg: 'a cfg) : 'a node list = cfg.nodes
 let get_edges (cfg: 'a cfg) : (label * label) list = cfg.edges
 
-let get_first_node_id (cfg: 'a cfg) : label = 
-  let nodes = get_nodes cfg in
-  let first_node = List.hd (List.rev nodes) in
-  get_node_id first_node
-
-let get_last_node_id (cfg: 'a cfg) : label = 
-  let nodes = get_nodes cfg in 
-  let last_node = List.hd nodes in
-  get_node_id last_node
+let length (cfg: 'a cfg) : int = List.length (get_nodes cfg)
