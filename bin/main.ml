@@ -9,7 +9,7 @@ let () =
       Lib.MiniImp.If(
         Lib.MiniImp.Minor(Lib.MiniImp.Var("y"), Lib.MiniImp.Aval(0)),
         Lib.MiniImp.Seq(
-          Lib.MiniImp.Assign( "y", Lib.MiniImp.Plus(Lib.MiniImp.Var("x"), Lib.MiniImp.Aval(3))),
+          Lib.MiniImp.Assign("y", Lib.MiniImp.Plus(Lib.MiniImp.Var("x"), Lib.MiniImp.Aval(3))),
           Lib.MiniImp.Assign("x", Lib.MiniImp.Var("y"))
         ),
         Lib.MiniImp.Seq(
@@ -18,10 +18,14 @@ let () =
         )
       )
     )
+  
   in
   let g = Lib.Generate.program_to_cfg p in
   let g = Lib.Translate_cfg.translate_cfg g in
-  Lib.MiniRisc_cfg.pp_cfg g
+  Lib.MiniRisc_cfg.pp_cfg g;
+  
+  let lt = Lib.Liveness.liveness_analysis g in
+  print_endline (Lib.Liveness.show_liveness_table lt);
   
   
 
