@@ -11,6 +11,28 @@ type liveness = {
   live_out: RegisterSet.t
 } [@@ deriving show]
 
+type liveness_table = (Param_cfg.label, liveness) Hashtbl.t [@@ deriving show]
+
+let lookup_table (lt: (Param_cfg.label, 'a) Hashtbl.t) (id: Param_cfg.label): 'a =
+  match (Hashtbl.find_opt lt id) with
+  | Some(value) -> value
+  | None -> failwith "Searched for an invalid label"
+
+let show_set (s: RegisterSet.t) : string = 
+  String.concat ", " @@ List.map Register.string_of_register @@ RegisterSet.elements s 
+
+let show_liveness (liveness: liveness): string = 
+  let in_str =  show_set liveness.live_in in
+  let out_str = show_set liveness.live_out in
+  "\tlive_in: " ^ in_str ^ "\n\tlive_out: " ^ out_str 
+
+let show_liveness_table (table: liveness_table) : string =
+  Hashtbl.fold (fun label liveness acc ->
+    let label_str = string_of_int label in
+    let liveness_str = show_liveness liveness in
+    acc ^ label_str ^ " ->\n" ^ liveness_str ^ "\n"
+  ) table ""
+
 
 let merge_sets (ls: def_use list) : def_use =
   List.fold_left 
@@ -66,15 +88,6 @@ let compute_use_def_table (g: MiniRisc_cfg.miniRisc_cfg) : (Param_cfg.label, def
   in ht
 
 
-type liveness_table = (Param_cfg.label, liveness) Hashtbl.t [@@ deriving show]
-
-let lookup_table (lt: (Param_cfg.label, 'a) Hashtbl.t) (id: Param_cfg.label): 'a =
-  match (Hashtbl.find_opt lt id) with
-  | Some(value) -> value
-  | None -> failwith "Search for an invalid label"
-
-
-
 let iteration 
   (cfg: MiniRisc_cfg.miniRisc_cfg) 
   (use_def_table: (Param_cfg.label, def_use) Hashtbl.t)
@@ -83,9 +96,9 @@ let iteration
   let num_nodes = Param_cfg.length cfg in 
   let labels = Param_cfg.get_labels cfg in
   let lt = Hashtbl.create num_nodes in
-  
+
   (* backward analysis: from end to beginning; compute out then in*)
-  let _ = labels |> 
+  let _ = List.rev labels |> 
   List.map (fun label ->
     let new_live_out = 
       if(label==num_nodes-1) then RegisterSet.singleton 1 (* r_out *)
@@ -103,11 +116,19 @@ let iteration
       if(label==0) then RegisterSet.singleton 0 (* r_in *)
       else 
         let use_def_label = lookup_table use_def_table label in          (* get the use/def sets for the current label *)
-        let out_label = (lookup_table liveness_table label).live_out in  (* get the live_out set for the current label *)
-        RegisterSet.union use_def_label.use (RegisterSet.diff out_label use_def_label.def)
+        (* let out_label = (lookup_table liveness_table label).live_out in *)  (* get the live_out set for the current label *)
+        (*print_endline ( "label: " ^ string_of_int label ^ "\tlive_in = " ^
+          show_set use_def_label.use ^ 
+          " U (" ^ 
+          show_set new_live_out ^ 
+          "\\" ^ 
+          show_set use_def_label.def ^ ")" );
+        *)
+        RegisterSet.union use_def_label.use (RegisterSet.diff new_live_out use_def_label.def) (* maybe new_live_out instead of old live_out *)
     in Hashtbl.add lt label {live_in=new_live_in; live_out=new_live_out}
   ) 
-  in lt
+  in (* print_endline ("Iteration:\n" ^ show_liveness_table lt ^ "\n"); *)
+  lt
 
 
 
@@ -137,17 +158,3 @@ let liveness_analysis (cfg: MiniRisc_cfg.miniRisc_cfg): liveness_table =
   ) cfg.nodes;
       
   fixpoint cfg use_def_table liveness_table
-
-
-
-let show_liveness (liveness: liveness): string = 
-  let in_str =  String.concat ", " @@ List.map Register.string_of_register @@ RegisterSet.elements liveness.live_in in
-  let out_str = String.concat ", " @@ List.map Register.string_of_register @@ RegisterSet.elements liveness.live_out in
-  "\tlive_in: " ^ in_str ^ "\n\tlive_out: " ^ out_str 
-
-let show_liveness_table (table: liveness_table) : string =
-  Hashtbl.fold (fun label liveness acc ->
-    let label_str = string_of_int label in
-    let liveness_str = show_liveness liveness in
-    acc ^ label_str ^ " ->\n" ^ liveness_str ^ "\n"
-  ) table ""
