@@ -8,7 +8,7 @@ let map_node (reg_table: register_table) (node: miniImp_instr node) : miniRisc_i
   let c1 = match node.content with
     | Statement(stmt) -> stmt_translate reg_table stmt
     | Expression(exp) -> 
-      let e1, _ = exp_translate reg_table exp in
+      let e1, _ = exp_translate reg_table exp None in
       e1 
   in {id=node.id; content=c1}
   
