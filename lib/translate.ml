@@ -6,6 +6,7 @@ let bool_true = 1
 let get_boolean_integer (b: bool): int =
   if b then bool_true else bool_false
 
+
 let check_exist_reg (reg_var: Register.register option) =
     match reg_var with 
     | Some(r) -> r
