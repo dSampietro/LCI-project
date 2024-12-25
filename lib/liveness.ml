@@ -64,7 +64,7 @@ let compute_instr_use_def (e: MiniRisc.exp) : def_use =
 
   (*load/store*)
   | Load(r1, r2) -> {def=RegisterSet.singleton r2; use=RegisterSet.singleton r1}
-  | LoadI(_, r2) -> {def=RegisterSet.empty; use=RegisterSet.singleton r2}
+  | LoadI(_, r2) -> {def=RegisterSet.singleton r2; use=RegisterSet.empty}
   | Store(r1, r2) -> {def=RegisterSet.singleton r2; use=RegisterSet.singleton r1}
 
   (*jump*)
@@ -87,6 +87,13 @@ let compute_use_def_table (g: MiniRisc_cfg.miniRisc_cfg) : (Param_cfg.label, def
   ) g.nodes
   in ht
 
+let show_use_def_table (udt: (Param_cfg.label, def_use) Hashtbl.t) = 
+  Hashtbl.iter (fun label {def; use} ->
+    Printf.printf "%d ->\n\tdef: %s\n\tuse: %s\n"
+    label
+    (show_set def)
+    (show_set use)
+    ) udt
 
 let iteration 
   (cfg: MiniRisc_cfg.miniRisc_cfg) 
@@ -101,7 +108,7 @@ let iteration
   let _ = List.rev labels |> 
   List.map (fun label ->
     let new_live_out = 
-      if(label==num_nodes-1) then RegisterSet.singleton 1 (* r_out *)
+      if(label = num_nodes-1) then RegisterSet.singleton 1 (* r_out *)
       else (*List.fold Set.union [in[m] for m in (successor cfg label)] *)
         let x = (Param_cfg.successors cfg label)
         |> List.map (lookup_table liveness_table)
@@ -113,7 +120,7 @@ let iteration
         in x.live_in
     in
     let new_live_in = 
-      if(label==0) then RegisterSet.singleton 0 (* r_in *)
+      if(label = 0) then RegisterSet.singleton 0 (* r_in *)
       else 
         let use_def_label = lookup_table use_def_table label in          (* get the use/def sets for the current label *)
         (* let out_label = (lookup_table liveness_table label).live_out in *)  (* get the live_out set for the current label *)
@@ -132,6 +139,15 @@ let iteration
 
 
 
+let equal_liveness_table lt1 lt2 =
+  Hashtbl.fold (fun label liveness acc ->
+    acc && (Hashtbl.find_opt lt2 label = Some liveness)
+  ) lt1 true
+  && Hashtbl.fold (fun label liveness acc ->
+    acc && (Hashtbl.find_opt lt1 label = Some liveness)
+  ) lt2 true
+
+
 let fixpoint 
   (cfg: MiniRisc_cfg.miniRisc_cfg) 
   (use_def_table: (Param_cfg.label, def_use) Hashtbl.t)
@@ -140,7 +156,7 @@ let fixpoint
   let prev_liveness_table = ref liveness_table in
   let new_liveness_table = ref (iteration cfg use_def_table !prev_liveness_table) in
 
-  while !new_liveness_table <> !prev_liveness_table do
+  while not (equal_liveness_table !new_liveness_table !prev_liveness_table) do
     prev_liveness_table := !new_liveness_table;
     new_liveness_table := iteration cfg use_def_table !prev_liveness_table;
   done;
