@@ -24,6 +24,9 @@ type stmt =
   | If of exp * stmt * stmt (* If-else statement *)
   | While of exp * stmt 
 
+type program =
+  | Main of string * string * stmt
+
 
 (* use for pretty-printing *)
 let rec stmt_to_string (s: stmt) : string =
@@ -32,9 +35,9 @@ let rec stmt_to_string (s: stmt) : string =
   | Assign (id, e) -> id ^ " := " ^ exp_to_string e
   | Seq (s1, s2) -> stmt_to_string s1 ^ "; " ^ stmt_to_string s2
   | If (cond, then_branch, else_branch) ->
-      "if " ^ exp_to_string cond ^ " then { " ^ stmt_to_string then_branch ^ " } else { " ^ stmt_to_string else_branch ^ " }"
+    "if " ^ exp_to_string cond ^ " then { " ^ stmt_to_string then_branch ^ " } else { " ^ stmt_to_string else_branch ^ " }"
   | While (cond, body) ->
-      "while " ^ exp_to_string cond ^ " do { " ^ stmt_to_string body ^ " }"
+    "while " ^ exp_to_string cond ^ " do { " ^ stmt_to_string body ^ " }"
 
 and exp_to_string (e: exp) : string =
   match e with

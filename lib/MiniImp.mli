@@ -25,6 +25,9 @@ type stmt =
   | If of exp * stmt * stmt (* If-else statement *)
   | While of exp * stmt 
 
+type program =
+  | Main of string * string * stmt
+
 
 val stmt_to_string : stmt -> string
 val exp_to_string : exp -> string
