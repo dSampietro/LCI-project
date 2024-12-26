@@ -1,0 +1,11 @@
+def main with input x output y as
+  w = 9;
+  z = 4;
+  if x<0 then {
+    y = x + w;
+    x = y
+  }
+  else {
+    y = 10000;
+    x = 1 - z
+  }
