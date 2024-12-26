@@ -42,6 +42,18 @@ let add_edge (cfg: 'a cfg) (id1: label) (id2: label) : 'a cfg =
   | false -> { nodes = cfg.nodes; edges = (id1, id2)::cfg.edges }
 
 
+let remove_node_by_label (cfg: 'a cfg) (id: label) : 'a cfg =
+  (* remove node with label *)
+  let updated_nodes = List.filter (fun n -> n.id <> id) cfg.nodes in
+  
+  (* remove edges containing label *)
+  let updated_edges = List.filter ( fun (src, dest) ->
+    src <> id && dest <> id
+  ) cfg.edges in
+  
+  {nodes = updated_nodes; edges = updated_edges}
+  
+
 let get_nodes (cfg: 'a cfg) : 'a node list = cfg.nodes
 let get_edges (cfg: 'a cfg) : (label * label) list = cfg.edges
 
@@ -50,6 +62,11 @@ let length (cfg: 'a cfg) : int = List.length (get_nodes cfg)
 let get_labels (cfg: 'a cfg) : label list =
   cfg.nodes
   |> List.map (fun (n: 'a node) -> n.id) 
+
+let predecessors (cfg: 'a cfg) (id: label) : label list = 
+  cfg.edges 
+  |> List.filter (fun (_, x) -> x==id) 
+  |> List.map fst
 
 let successors (cfg: 'a cfg) (id: label) : label list = 
   cfg.edges 
