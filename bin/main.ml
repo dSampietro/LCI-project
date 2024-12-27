@@ -39,14 +39,32 @@ let () =
     let g = Lib.Generate.program_to_cfg p in
     let g = Lib.Translate_cfg.translate_cfg g (inp, out) in
     Lib.MiniRisc_cfg.pp_cfg g;
-    let udt = Lib.Liveness.compute_use_def_table g in
-    print_endline "Use-def table:\n"; 
-    Lib.Liveness.show_use_def_table udt;
-    
+
+    (* Liveness - live ranges *)
+    let _udt = Lib.Liveness.compute_use_def_table g in
+    (*print_endline "Use-def table:\n"; 
+    Lib.Liveness.show_use_def_table udt;*)
     let lt = Lib.Liveness.liveness_analysis g in
-    print_endline ("\nLiveness table\n" ^ Lib.Liveness.show_liveness_table lt);
     let lrt = Lib.Interference_graph.compute_live_ranges lt in
+    print_endline ("\nLiveness table\n" ^ Lib.Liveness.show_liveness_table lt);
     print_endline "\n\nLive ranges:\n";
     Lib.Interference_graph.show_liverange_table lrt;
+
+    (* Interference graph *)
     let int_g = Lib.Interference_graph.build_interf_graph lrt in
+    
+    (* Num_neigh table*)
     Lib.Interference_graph.show_intf_graph int_g;
+    (*
+    let nt = Lib.Interference_graph.get_degree_table int_g in
+    Lib.Interference_graph.show_degree_table nt;
+    *)
+
+    (* k-coloring*)
+    let (ct, st) = Lib.Interference_graph.kcoloring int_g 4
+    in Lib.Interference_graph.show_color_table ct;
+    Lib.Interference_graph.show_spill_table st;
+
+    (* reg allocation *)
+    let g1 = Lib.Allocation.reg_allocation g ct st
+    in Lib.MiniRisc_cfg.pp_cfg g1;
