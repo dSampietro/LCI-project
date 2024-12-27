@@ -155,11 +155,8 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
     let else_code = stmt_translate env else_stmt in
     cond_code @
     [CJump (cond_reg, then_label, else_label)] @
-    [Label then_label] @
-    then_code @
-    [Jump end_label; Label else_label] @
-    else_code @
-    [Label end_label]
+    [Label then_label] @ then_code @ [Jump end_label] @ 
+    [Label else_label] @ else_code @ [Label end_label]
 
   | While(Bval(false), _) -> []
 
