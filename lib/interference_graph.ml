@@ -136,9 +136,9 @@ type color = int
 type color_table = (Register.register, color) Hashtbl.t
 
 let show_color_table (ct: color_table) = 
-  print_endline "Color table\n";
+  print_endline "\nColor table";
   Hashtbl.iter (fun reg col ->
-    Printf.printf "reg: %d\tcol: %d\n" reg col
+    Printf.printf "reg: %d\tcolor: %d\n" reg col
   ) ct
 
 type address = int
@@ -148,91 +148,11 @@ type memory = (address, content) Hashtbl.t
 
 type spill_table = (Register.register, address) Hashtbl.t
 
-(*
-let kcoloring (g: interf_graph) (k: int) : color_table * spill_table = 
-  let stack = Stack.create () in
-  let degree_table = (get_degree_table g) in
-
-  let num_nodes = List.length @@ Param_cfg.get_labels g in
-  let (color_table: color_table) = Hashtbl.create num_nodes in
-  let (spill_table: spill_table) = Hashtbl.create num_nodes in
-  
-  (* Node selection *)
-  let simplify () = 
-    (* find the node with degree <= k *)
-    let (candidates: Param_cfg.label list) = Hashtbl.fold (
-      fun label degree acc ->
-        if degree <= k 
-          then label :: acc
-          else acc
-    ) degree_table [] in
-
-    (* if there are multiple nodes that can be removed; select the one with the largest label*)
-    let label_to_remove = List.fold_left max (List.hd candidates) (List.tl candidates) in
-    Printf.printf "remove: %d\n" label_to_remove;
-    (* Remove the node from the graph & and push to stack*)
-    Stack.push label_to_remove stack;
-    let new_graph = Param_cfg.remove_node_by_label g label_to_remove in
-
-    (* update degree table *)
-    let _degree_table = get_degree_table new_graph in () 
-    (* return the deg_table? *)
-    
-  in
-
-  (* Graph coloring *)
-  let color_node label =
-    let neighbor_colors =
-      List.fold_left (fun acc neighbor ->
-        match Hashtbl.find_opt color_table neighbor with
-        | Some(color) -> color :: acc
-        | None -> acc
-        ) [] (get_neighbors g label)
-    in
-    let rec find_available_color (color: color): color =
-      if List.mem color neighbor_colors then
-        find_available_color (color + 1)
-      else color
-    in 
-    let color = find_available_color 0 in
-    Hashtbl.replace color_table label color
-  in
-
-  
-  (* Assign color to nodes in stack *)
-  let assign_colors () = 
-    while not (Stack.is_empty stack) do
-      let node = Stack.pop stack in
-      color_node node    
-    done
-  in
-
-  (* Handle spilling *)
-  let handle_spill () = 
-    List.iter (fun label ->
-      (* if the node is not colored => spill *)
-      if not (Hashtbl.mem color_table label) then 
-        let address = 1000 in
-        (* keep track of spilled nodes *)
-        Hashtbl.add spill_table label address;
-        (*Hashtbl.add memory address _;*)
-    ) (Param_cfg.get_labels g) in
-
-  (* main loop *)
-  let rec loop () =
-    if num_nodes > 0 then (
-      simplify ();
-      loop ()
-    ) else (
-      assign_colors ();
-      handle_spill ()
-    )
-  in
-
-  loop ();
-  color_table, spill_table
-
-*)
+let show_spill_table (st: spill_table) = 
+  print_endline "\nSpill table";
+  Hashtbl.iter (fun reg addr ->
+    Printf.printf "reg: %d\taddr: 0x%d\n" reg addr
+  ) st
 
 
 let kcoloring (g: interf_graph) (k: int) : color_table * spill_table = 
@@ -275,7 +195,7 @@ let kcoloring (g: interf_graph) (k: int) : color_table * spill_table =
         in
         
         (*TODO: add to memory*)
-        let address = 0 in
+        let address = Hashtbl.length spill_table in
         Hashtbl.add spill_table node_to_spill address;
 
         let new_graph = Param_cfg.remove_node_by_label graph node_to_spill in
@@ -300,13 +220,19 @@ let kcoloring (g: interf_graph) (k: int) : color_table * spill_table =
     in
     (* assign lowest available color*)
     let rec find_available_color color =
-      if List.mem color neighbor_colors then
+      if color >= k then None
+      else if List.mem color neighbor_colors then
         find_available_color (color+1)
       else
-        color
+        Some color
     in
-    let assigned_color = find_available_color 0 in
-    Hashtbl.add color_table label assigned_color
+
+    match find_available_color 0 with
+    | Some(assigned_color) -> 
+      Hashtbl.add color_table label assigned_color
+    | None -> 
+      let address = Hashtbl.length spill_table in
+      Hashtbl.add spill_table label address
   done;
 
   (* Return the color and spill tables *)
