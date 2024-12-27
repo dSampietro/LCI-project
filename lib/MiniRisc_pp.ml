@@ -27,7 +27,7 @@ let string_of_risc_exp (e: MiniRisc.exp) =
   | Store(r1, r2) -> Printf.sprintf "\tStore %s %s\n" (string_of_register r1) (string_of_register r2)
 
   (*jump*)
-  | Jump(l) -> "\tJump " ^ l ^ "\n"
+  | Jump(l) -> Printf.sprintf "\tJump %s\n" l
   | CJump(r1, l1, l2) -> Printf.sprintf "\tCJump %s %s %s\n" (string_of_register r1) l1 l2
 
   (* only for represent (int/bool) values*)
