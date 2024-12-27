@@ -19,7 +19,7 @@ let rec generate_cfg (cfg: miniImp_cfg) (stmt: MiniImp.stmt): (miniImp_cfg * Par
   | If(cond, then_branch, else_branch) ->
     let cond_node = create_node (Expression(cond)) in
     let cfg = Param_cfg.add_node cfg cond_node in
-    
+
     (* cfg with then, else nodes added*)
     let (cfg, then_end_id) = generate_cfg cfg then_branch in
     let (cfg, else_end_id) = generate_cfg cfg else_branch in
