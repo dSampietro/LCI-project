@@ -120,18 +120,14 @@ let iteration
         in x.live_in
     in
     let new_live_in = 
-      if(label = 0) then RegisterSet.singleton 0 (* r_in *)
-      else 
-        let use_def_label = lookup_table use_def_table label in          (* get the use/def sets for the current label *)
-        (* let out_label = (lookup_table liveness_table label).live_out in *)  (* get the live_out set for the current label *)
-        (*print_endline ( "label: " ^ string_of_int label ^ "\tlive_in = " ^
-          show_set use_def_label.use ^ 
-          " U (" ^ 
-          show_set new_live_out ^ 
-          "\\" ^ 
-          show_set use_def_label.def ^ ")" );
-        *)
-        RegisterSet.union use_def_label.use (RegisterSet.diff new_live_out use_def_label.def) (* maybe new_live_out instead of old live_out *)
+      let r_in =
+        if(label = 0) then RegisterSet.singleton 0
+        else RegisterSet.empty
+      in
+      
+      let use_def_label = lookup_table use_def_table label in          (* get the use/def sets for the current label *)
+      let live_in = RegisterSet.union use_def_label.use (RegisterSet.diff new_live_out use_def_label.def) (* maybe new_live_out instead of old live_out *)
+      in RegisterSet.union r_in live_in
     in Hashtbl.add lt label {live_in=new_live_in; live_out=new_live_out}
   ) 
   in (* print_endline ("Iteration:\n" ^ show_liveness_table lt ^ "\n"); *)
