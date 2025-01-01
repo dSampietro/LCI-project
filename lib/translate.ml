@@ -175,4 +175,4 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
 
 
 let get_code_string (code: MiniRisc.exp list) : string = 
-  String.concat "" (List.map MiniRisc_pp.string_of_risc_exp code)
+  String.concat "" (List.map MiniRisc.string_of_risc_exp code)
