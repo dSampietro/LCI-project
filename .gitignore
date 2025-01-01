@@ -4,3 +4,5 @@ lib/sketches
 lib/MyLexer.ml
 lib/MyParser.ml
 lib/MyParser.mli
+*.minirisc
+*.miniimp
