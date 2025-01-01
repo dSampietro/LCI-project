@@ -6,8 +6,8 @@ open MiniImp_cfg
 
 let string_of_instr (i: miniImp_instr) : string =
   match i with
-  | Statement(stmt) -> MiniImp_pp.string_of_stmt stmt
-  | Expression(exp) -> MiniImp_pp.string_of_exp exp
+  | Statement(stmt) -> MiniImp.string_of_stmt stmt
+  | Expression(exp) -> MiniImp.string_of_exp exp
 
 let string_of_node {id; content} : string = 
   Printf.sprintf "Node %d: %s" id (string_of_instr content)

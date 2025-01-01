@@ -12,7 +12,7 @@ let create_node content =
 
 
 let string_of_node {id; content} : string = 
-  let content_string = String.concat "" (List.map MiniRisc_pp.string_of_risc_exp content) in
+  let content_string = String.concat "" (List.map MiniRisc.string_of_risc_exp content) in
   Printf.sprintf "Node %d:\n%s" id content_string
    
 let string_of_edge (id1, id2) =
