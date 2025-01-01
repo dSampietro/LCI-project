@@ -1,4 +1,4 @@
-module RegisterSet : Set.S with type elt = int
+module RegisterSet : Set.S with type elt = Register.register
 
 type def_use = {
   def: RegisterSet.t;
