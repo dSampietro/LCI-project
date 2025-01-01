@@ -71,7 +71,7 @@ let transf_instr
 
   let spill_register (reg: Register.register): MiniRisc.exp list * Register.register =
     match Hashtbl.find_opt ct reg with
-    | Some(_) -> [], reg
+    | Some(phys_reg) -> [], phys_reg
     | None ->
       let addr = get_register_address spilled_regs reg in
       let rtemp = allocate_temp_register () in 
@@ -84,10 +84,6 @@ let transf_instr
   | AndR(r1, r2, r3) | LessR(r1, r2, r3) ->
     let load_r1, r1_temp = load_register r1 in
     let load_r2, r2_temp = load_register r2 in
-
-    (*
-    let spill_r3, r3_temp = spill_register r3 in
-    *)
 
     let r3_temp = allocate_temp_register () in
     let addr = get_register_address spilled_regs r3 in
@@ -152,7 +148,8 @@ let transf_instr
     let load_r, r_temp = load_register r in
     load_r @ [CJump(r_temp, l1, l2)]
 
-  | _ -> [instr]
+  | Store (_, _) |Jump(_) | Nop 
+  | Int(_) |Bool(_) |Label(_) -> [instr]
 
 
 type node = MiniRisc_cfg.miniRisc_instr Param_cfg.node
