@@ -1,17 +1,10 @@
 type register = int
-  (*
-  | Register of int
-  *)
 
 let string_of_register (r: register) : string =  
   match r with
   | -1 -> "rA"
   | -2 -> "rB"
   | _ -> "r" ^ (string_of_int r)
-  (*
-  match r with 
-  | Register(n) -> "r" ^ (string_of_int n)
-  *)
 
 
 (* Report:
