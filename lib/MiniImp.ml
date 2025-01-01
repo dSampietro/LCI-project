@@ -29,24 +29,23 @@ type program =
 
 
 (* use for pretty-printing *)
-let rec stmt_to_string (s: stmt) : string =
-  match s with
-  | Skip -> "skip"
-  | Assign (id, e) -> id ^ " := " ^ exp_to_string e
-  | Seq (s1, s2) -> stmt_to_string s1 ^ "; " ^ stmt_to_string s2
-  | If (cond, then_branch, else_branch) ->
-    "if " ^ exp_to_string cond ^ " then { " ^ stmt_to_string then_branch ^ " } else { " ^ stmt_to_string else_branch ^ " }"
-  | While (cond, body) ->
-    "while " ^ exp_to_string cond ^ " do { " ^ stmt_to_string body ^ " }"
+let rec string_of_exp (exp: MiniImp.exp) : string =
+  match exp with
+  | Var name -> Printf.sprintf "Var(%s)" name
+  | Aval n -> Printf.sprintf "Aval(%d)" n
+  | Plus (e1, e2) -> Printf.sprintf "Plus(%s, %s)" (string_of_exp e1) (string_of_exp e2)
+  | Minus (e1, e2) -> Printf.sprintf "Minus(%s, %s)" (string_of_exp e1) (string_of_exp e2)
+  | Times (e1, e2) -> Printf.sprintf "Times(%s, %s)" (string_of_exp e1) (string_of_exp e2)
+  | Bval b -> Printf.sprintf "Bval(%b)" b
+  | And (e1, e2) -> Printf.sprintf "And(%s, %s)" (string_of_exp e1) (string_of_exp e2)
+  | Not e -> Printf.sprintf "Not(%s)" (string_of_exp e)
+  | Minor (e1, e2) -> Printf.sprintf "Minor(%s, %s)" (string_of_exp e1) (string_of_exp e2)
 
-and exp_to_string (e: exp) : string =
-  match e with
-  | Var id -> id
-  | Aval n -> string_of_int n
-  | Plus (e1, e2) -> "(" ^ exp_to_string e1 ^ " + " ^ exp_to_string e2 ^ ")"
-  | Minus (e1, e2) -> "(" ^ exp_to_string e1 ^ " - " ^ exp_to_string e2 ^ ")"
-  | Times (e1, e2) -> "(" ^ exp_to_string e1 ^ " * " ^ exp_to_string e2 ^ ")"
-  | Bval b -> string_of_bool b
-  | And (e1, e2) -> "(" ^ exp_to_string e1 ^ " && " ^ exp_to_string e2 ^ ")"
-  | Not e -> "not (" ^ exp_to_string e ^ ")"
-  | Minor (e1, e2) -> "(" ^ exp_to_string e1 ^ " < " ^ exp_to_string e2 ^ ")"
+
+let string_of_stmt (stmt: MiniImp.stmt) : string =
+  match stmt with
+  | Skip -> "Skip"
+  | Assign (var, exp) -> Printf.sprintf "Assign(%s, %s)" var (string_of_exp exp)
+  | Seq (_, _) -> "Seq" (* Not printing the full sequence here for simplicity *)
+  | If (_, _, _) -> "If"
+  | While (_, _) -> "While"
