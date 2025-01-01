@@ -22,7 +22,6 @@ let string_of_register (r: register) : string =
 let register_counter = ref (1) (* first register is 2*)
 let get_new_register () : register = 
   incr register_counter;
-  (* Register(!register_counter) *)
   !register_counter
 
 
