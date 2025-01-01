@@ -33,3 +33,6 @@ type exp =
   | Int of int
   | Bool of bool
   | Label of string
+
+
+val string_of_risc_exp: exp -> string 
