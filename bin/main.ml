@@ -29,55 +29,70 @@ let parse (filename: string) : Lib.MiniImp.program =
     failwith (Printexc.to_string exn)
 
 
-let () = 
+(* usage: 
+  ./main.native 
+  - <init_check>
+  - <optimize>
+  -r <num_reg> 
+  -o <output_file> 
+    <input_file>     
+*)
 
-  if Array.length Sys.argv != 2 then
-    Printf.eprintf "Argument MiniImp-program is needed"
-  else
-    let filename = Sys.argv.(1) in
-    let Main(inp, out, p) = parse filename in
+let usage_msg = "Usage: compiler [-init_check] [-optimize] [-r <num_reg>] [-o <output_file>] <input_file>"
+
+let init_check = ref false
+let optimize = ref false
+let num_reg = ref 4 
+let output_name = ref "a"
+let input_file = ref ""
+
+let anon_fun filename = 
+  input_file := filename
+
+let options = [
+  ("--init_check", Arg.Set init_check, "Enable init check");
+  ("--optimize", Arg.Set optimize, "Enable optimization");
+  ("-r", Arg.Set_int num_reg, "Number of registers");
+  ("-o", Arg.Set_string output_name, "Output file");
+]
+
+
+let () = 
+  Arg.parse options anon_fun usage_msg;
+
+    let Main(inp, out, p) = parse !input_file in
     let g = Lib.Generate.program_to_cfg p in
     let g = Lib.Translate_cfg.translate_cfg g (inp, out) in
     Lib.MiniRisc_cfg.pp_cfg g;
 
-    (* Liveness - live ranges *)
-    let _udt = Lib.Liveness.compute_use_def_table g in
-    (*print_endline "Use-def table:\n"; 
-    Lib.Liveness.show_use_def_table udt;*)
-    let lt = Lib.Liveness.liveness_analysis g in
-    let lrt = Lib.Interference_graph.compute_live_ranges lt in
-    (*
-    print_endline ("\nLiveness table\n" ^ Lib.Liveness.show_liveness_table lt);
-    print_endline "\n\nLive ranges:\n";
-    Lib.Interference_graph.show_liverange_table lrt;
-    *)
 
-    (* Interference graph *)
-    let int_g = Lib.Interference_graph.build_interf_graph lrt in
+    let g1 = if !optimize then
+      (* Liveness - live ranges *)
+      let _udt = Lib.Liveness.compute_use_def_table g in
+      let lt = Lib.Liveness.liveness_analysis g in
+      let lrt = Lib.Interference_graph.compute_live_ranges lt in
+ 
+      (* Interference graph *)
+      let int_g = Lib.Interference_graph.build_interf_graph lrt in
     
-    (* Num_neigh table*)
-    (*
-    Lib.Interference_graph.show_intf_graph int_g;
-    let nt = Lib.Interference_graph.get_degree_table int_g in
-    Lib.Interference_graph.show_degree_table nt;
-    *)
+      (* k-coloring*)
+      let (ct, st) = Lib.Interference_graph.kcoloring int_g (!num_reg-2)
+      in Lib.Interference_graph.show_color_table ct;
+      Lib.Interference_graph.show_spill_table st;
 
-    (* k-coloring*)
-    let k = 4 in
-    let (ct, st) = Lib.Interference_graph.kcoloring int_g (k-2)
-    in Lib.Interference_graph.show_color_table ct;
-    Lib.Interference_graph.show_spill_table st;
+      (* reg allocation *)
+      Lib.Allocation_v3.reg_allocation g ct st
+      (*
+      let g1 = Lib.Allocation_v3.reg_allocation g ct st
+      in Lib.MiniRisc_cfg.pp_cfg g1;
+      *)
+    else
+      g
 
-    (* reg allocation *)
-    (*let g1 = Lib.Allocation.reg_allocation g ct st
-    in Lib.MiniRisc_cfg.pp_cfg g1;*)
-
-    let g1 = Lib.Allocation_v3.reg_allocation g ct st
-    in Lib.MiniRisc_cfg.pp_cfg g1;
-
+    in
     let final_code = Lib.Save_code.codegen g1 in
     List.iter (fun x -> print_endline x) final_code;
 
-    let output_file = open_out "output.minirisc" in
+    let output_file = open_out (!output_name ^ ".minirisc") in
     List.iter (fun x -> output_string output_file (x ^ "\n")) final_code;
     close_out output_file
