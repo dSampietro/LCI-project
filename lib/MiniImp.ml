@@ -29,8 +29,8 @@ type program =
 
 
 (* use for pretty-printing *)
-let rec string_of_exp (exp: MiniImp.exp) : string =
-  match exp with
+let rec string_of_exp (e: exp) : string =
+  match e with
   | Var name -> Printf.sprintf "Var(%s)" name
   | Aval n -> Printf.sprintf "Aval(%d)" n
   | Plus (e1, e2) -> Printf.sprintf "Plus(%s, %s)" (string_of_exp e1) (string_of_exp e2)
@@ -42,8 +42,8 @@ let rec string_of_exp (exp: MiniImp.exp) : string =
   | Minor (e1, e2) -> Printf.sprintf "Minor(%s, %s)" (string_of_exp e1) (string_of_exp e2)
 
 
-let string_of_stmt (stmt: MiniImp.stmt) : string =
-  match stmt with
+let string_of_stmt (st: stmt) : string =
+  match st with
   | Skip -> "Skip"
   | Assign (var, exp) -> Printf.sprintf "Assign(%s, %s)" var (string_of_exp exp)
   | Seq (_, _) -> "Seq" (* Not printing the full sequence here for simplicity *)

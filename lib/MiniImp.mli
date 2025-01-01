@@ -29,5 +29,5 @@ type program =
   | Main of string * string * stmt
 
 
-val string_of_exp  : MiniImp.exp -> string
-val string_of_stmt : MiniImp.stmt -> string
+val string_of_exp  : exp -> string
+val string_of_stmt : stmt -> string
