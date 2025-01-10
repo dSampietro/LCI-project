@@ -30,12 +30,12 @@ let parse (filename: string) : Lib.MiniImp.program =
 
 
 (* usage: 
-  ./main.native 
-  - <init_check>
-  - <optimize>
+  ./cc 
+  --init_check
+  --optimize
   -r <num_reg> 
   -o <output_file> 
-    <input_file>     
+  <input_file>     
 *)
 
 let usage_msg = "Usage: compiler [-init_check] [-optimize] [-r <num_reg>] [-o <output_file>] <input_file>"
@@ -77,11 +77,15 @@ let () =
     
       (* k-coloring*)
       let (ct, st) = Lib.Interference_graph.kcoloring int_g (!num_reg-2)
-      in Lib.Interference_graph.show_color_table ct;
+      in 
+      (*
+      Lib.Interference_graph.show_color_table ct;
       Lib.Interference_graph.show_spill_table st;
+      *)
 
       (* reg allocation *)
-      Lib.Allocation_v3.reg_allocation g ct st
+      (*Lib.Allocation_v3.reg_allocation g ct st*)
+      Lib.Allocation_v4.reg_allocation g ct st
       (*
       let g1 = Lib.Allocation_v3.reg_allocation g ct st
       in Lib.MiniRisc_cfg.pp_cfg g1;
