@@ -18,8 +18,6 @@ type color_table = (Register.register, color) Hashtbl.t
 val show_color_table: color_table -> unit
 
 type address = int
-type content
-type memory = (address, content) Hashtbl.t
 type spill_table = (Register.register, address) Hashtbl.t
 val show_spill_table: spill_table -> unit 
 

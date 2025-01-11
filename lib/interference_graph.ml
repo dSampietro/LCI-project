@@ -142,10 +142,6 @@ let show_color_table (ct: color_table) =
   ) ct
 
 type address = int
-
-type content = int
-type memory = (address, content) Hashtbl.t
-
 type spill_table = (Register.register, address) Hashtbl.t
 
 let show_spill_table (st: spill_table) = 
@@ -194,8 +190,8 @@ let kcoloring (g: interf_graph) (k: int) : Register_state.reg_state =
           | hd :: _ -> hd
         in
         
-        (*TODO: add to memory*)
-        let address = Hashtbl.length spill_table in
+        (* we don't care about actual address => use 0 as placeholder*)
+        let address = 0 in
         Hashtbl.add spill_table node_to_spill address;
 
         let new_graph = Param_cfg.remove_node_by_label graph node_to_spill in
@@ -231,14 +227,18 @@ let kcoloring (g: interf_graph) (k: int) : Register_state.reg_state =
     | Some(assigned_color) -> 
       Hashtbl.add color_table label assigned_color
     | None -> 
-      let address = Hashtbl.length spill_table in
+      let address = 0 in
       Hashtbl.add spill_table label address
   done;
 
-  (* Return the color and spill tables 
-  color_table, spill_table
-  *)
-  let current_state = Hashtbl.create 10 in
+
+  (* Combine info contained in color_table and spill_table *)  
+  let non_spilled_regs = color_table |> Hashtbl.length in
+  let spilled_regs = spill_table |> Hashtbl.length in
+  let num_vregs = non_spilled_regs + spilled_regs in
+
+  let current_state = Hashtbl.create num_vregs in
   Hashtbl.iter (fun reg color -> Hashtbl.add current_state reg (`Physical(color))) color_table;
   Hashtbl.iter (fun reg _ -> Hashtbl.add current_state reg (`Memory(Register_state.get_new_address ()))) spill_table;
+  
   current_state
