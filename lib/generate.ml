@@ -2,7 +2,8 @@ open MiniImp
 open MiniImp_cfg
 
 
-let rec generate_cfg (cfg: miniImp_cfg) (stmt: MiniImp.stmt): (miniImp_cfg * Param_cfg.label) =   (* return CFG, last_node_id*)
+(* return CFG, last_node_id*)
+let rec generate_cfg (cfg: miniImp_cfg) (stmt: MiniImp.stmt): (miniImp_cfg * Param_cfg.label) =
   match stmt with
   | Skip | Assign(_, _) ->
     let node = create_node (Statement(stmt)) in
@@ -67,6 +68,3 @@ let rec generate_cfg (cfg: miniImp_cfg) (stmt: MiniImp.stmt): (miniImp_cfg * Par
 let program_to_cfg (p: MiniImp.stmt) : miniImp_cfg = 
   let (g, _) = generate_cfg (Param_cfg.empty()) p
   in g
-
-
-
