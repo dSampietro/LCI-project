@@ -155,7 +155,7 @@ let show_spill_table (st: spill_table) =
   ) st
 
 
-let kcoloring (g: interf_graph) (k: int) : color_table * spill_table = 
+let kcoloring (g: interf_graph) (k: int) : Register_state.reg_state = 
   let stack = Stack.create () in
 
   let num_nodes = List.length @@ Param_cfg.get_labels g in
@@ -235,5 +235,10 @@ let kcoloring (g: interf_graph) (k: int) : color_table * spill_table =
       Hashtbl.add spill_table label address
   done;
 
-  (* Return the color and spill tables *)
+  (* Return the color and spill tables 
   color_table, spill_table
+  *)
+  let current_state = Hashtbl.create 10 in
+  Hashtbl.iter (fun reg color -> Hashtbl.add current_state reg (`Physical(color))) color_table;
+  Hashtbl.iter (fun reg _ -> Hashtbl.add current_state reg (`Memory(Register_state.get_new_address ()))) spill_table;
+  current_state

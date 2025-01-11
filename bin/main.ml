@@ -76,7 +76,7 @@ let () =
       let int_g = Lib.Interference_graph.build_interf_graph lrt in
     
       (* k-coloring*)
-      let (ct, st) = Lib.Interference_graph.kcoloring int_g (!num_reg-2)
+      let current_state = Lib.Interference_graph.kcoloring int_g (!num_reg-2)
       in 
       (*
       Lib.Interference_graph.show_color_table ct;
@@ -85,7 +85,7 @@ let () =
 
       (* reg allocation *)
       (*Lib.Allocation_v3.reg_allocation g ct st*)
-      Lib.Allocation_v4.reg_allocation g ct st
+      Lib.Allocation_v4.reg_allocation g current_state
       (*
       let g1 = Lib.Allocation_v3.reg_allocation g ct st
       in Lib.MiniRisc_cfg.pp_cfg g1;

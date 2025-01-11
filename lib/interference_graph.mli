@@ -24,4 +24,4 @@ type spill_table = (Register.register, address) Hashtbl.t
 val show_spill_table: spill_table -> unit 
 
 
-val kcoloring: interf_graph -> int -> color_table * spill_table
+val kcoloring: interf_graph -> int -> Register_state.reg_state
