@@ -23,7 +23,7 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: 
       let regDest = check_exist_reg reg_var in
       ([LoadI(n, regDest)], regDest)
 
-    (* experiment on constant proapagation*)
+    (* constant propagation*)
     | Plus(Aval(n), Aval(m)) -> 
       let regDest = check_exist_reg reg_var in
       ([LoadI(n+m, regDest)], regDest)
@@ -77,17 +77,39 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: 
       let value = get_boolean_integer b in 
       ( [LoadI(value, regDest)], regDest )
 
-    (* TODO: constant folding for And/Not*)
+    (* short-circuiting AND with bool immediate *)
+    | And(Bval(false), _) ->
+      let regDest = check_exist_reg reg_var in
+      ([LoadI(bool_false, regDest)], regDest)
+
+    | And(Bval(true), Bval(false)) ->
+      let regDest = check_exist_reg reg_var in
+      ([LoadI(bool_false, regDest)], regDest)
+
+    | And(Bval(true), Bval(true)) ->
+      let regDest = check_exist_reg reg_var in
+      ([LoadI(bool_true, regDest)], regDest)
+
     | And(e1, e2) ->
       let code1, reg1 = exp_translate env e1 reg_var in
       let code2, reg2 = exp_translate env e2 reg_var in
       let regDest = check_exist_reg reg_var in
       (code1 @ code2 @ [AndR(reg1, reg2, regDest)], regDest) 
-      
+    
+    (* constant folding NOT with bool immediate *)
+    | Not(Bval(true) ->
+      let regDest = check_exist_reg reg_var in
+      ([LoadI(bool_false, regDest)], regDest)
+
+    | Not(Bval(false) ->
+      let regDest = check_exist_reg reg_var in
+      ([LoadI(bool_true, regDest)], regDest)
+
     | Not(e) ->
       let code1, reg1 = exp_translate env e reg_var in
       let regDest = check_exist_reg reg_var in
       (code1 @ [NotR(reg1, regDest)], regDest)
+
 
     | Minor(e1, e2) ->
       let code1, reg1 = exp_translate env e1 reg_var in
