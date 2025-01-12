@@ -18,6 +18,9 @@ type 'a node = {
 (* extract node_id from a node *)
 let get_node_id (n: 'a node): label = n.id
 
+let compare_nodes_by_id (node1: 'a node) (node2: 'a node) =
+  compare node1.id node2.id
+
 
 type 'a cfg = {
   nodes: 'a node list;

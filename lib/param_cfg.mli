@@ -10,6 +10,7 @@ type 'a node = {
 
 (* extract node_id from a node *)
 val get_node_id: 'a node -> label
+val compare_nodes_by_id: 'a node -> 'a node -> int
 
 type 'a cfg = {
   nodes: 'a node list;
