@@ -12,11 +12,11 @@ let map_node (reg_table: register_table) (node: miniImp_instr node) : miniRisc_i
       e1 @ [MiniRisc.CJump(rdest, "_", "_")]
   in {id=node.id; content=c1}
   
-
+(* add CJump to nodes with exactly 2 successors *)
 let fix_cjumps (g: miniRisc_cfg) : miniRisc_cfg =
   let nodes = g.nodes in
+
   let mapped_nodes = List.map (fun {id=id; content=c} ->
-    
     let updated_content = List.map (fun instr ->
       match instr with
       | MiniRisc.CJump(rd, _, _) ->
@@ -26,6 +26,7 @@ let fix_cjumps (g: miniRisc_cfg) : miniRisc_cfg =
       | _ -> instr) c 
     in {id=id; content=updated_content} 
   ) nodes
+  
   in {nodes=mapped_nodes; edges=g.edges}
   
 
