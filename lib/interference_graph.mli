@@ -1,7 +1,7 @@
 type liverange
 type liverange_table
 
-val compute_live_ranges: Liveness.liveness_table -> liverange_table
+val compute_live_ranges: Liveness_table.liveness_table -> liverange_table
 val show_liverange_table: liverange_table -> unit
 
 type interf_graph

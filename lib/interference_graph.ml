@@ -2,7 +2,7 @@ type liverange = Param_cfg.label * Param_cfg.label
 type liverange_table = (Register.register, liverange) Hashtbl.t
 
 
-let compute_live_ranges (lt: Liveness.liveness_table): liverange_table = 
+let compute_live_ranges (lt: Liveness_table.liveness_table): liverange_table = 
   (*helper function to update the live range*)
   let update_range reg start_id end_id ranges = 
     match Hashtbl.find_opt ranges reg with
@@ -15,17 +15,17 @@ let compute_live_ranges (lt: Liveness.liveness_table): liverange_table =
   in 
   let num = Hashtbl.length lt in
   let live_ranges = Hashtbl.create num in
-  Hashtbl.iter(fun label (liveness_info: Liveness.liveness) ->
+  Hashtbl.iter(fun label (liveness_info: Liveness_table.liveness) ->
     let start_id = label in
     let end_id = label in
 
     (*update live-in regs*)
-    Liveness.RegisterSet.iter (fun reg -> 
+    Register_set.RegisterSet.iter (fun reg -> 
       update_range reg start_id end_id live_ranges
     ) liveness_info.live_in;
 
     (*update live-out regs*)
-    Liveness.RegisterSet.iter (fun reg -> 
+    Register_set.RegisterSet.iter (fun reg -> 
       update_range reg start_id end_id live_ranges
     ) liveness_info.live_out;
 
