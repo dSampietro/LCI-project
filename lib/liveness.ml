@@ -11,13 +11,6 @@ type liveness = {
   live_out: RegisterSet.t
 } [@@ deriving show]
 
-type liveness_table = (Param_cfg.label, liveness) Hashtbl.t [@@ deriving show]
-
-let lookup_table (lt: (Param_cfg.label, 'a) Hashtbl.t) (id: Param_cfg.label): 'a =
-  match (Hashtbl.find_opt lt id) with
-  | Some(value) -> value
-  | None -> failwith "Searched for an invalid label"
-
 let show_set (s: RegisterSet.t) : string = 
   String.concat ", " @@ List.map Register.string_of_register @@ RegisterSet.elements s 
 
@@ -26,12 +19,29 @@ let show_liveness (liveness: liveness): string =
   let out_str = show_set liveness.live_out in
   "\tlive_in: " ^ in_str ^ "\n\tlive_out: " ^ out_str 
 
+
+type liveness_table = (Param_cfg.label, liveness) Hashtbl.t [@@ deriving show]
+
+let lookup_table (lt: (Param_cfg.label, 'a) Hashtbl.t) (id: Param_cfg.label): 'a =
+  match (Hashtbl.find_opt lt id) with
+  | Some(value) -> value
+  | None -> failwith "Searched for an invalid label"
+  
+
 let show_liveness_table (table: liveness_table) : string =
   Hashtbl.fold (fun label liveness acc ->
     let label_str = string_of_int label in
     let liveness_str = show_liveness liveness in
     acc ^ label_str ^ " ->\n" ^ liveness_str ^ "\n"
   ) table ""
+
+let equal_liveness_table lt1 lt2 =
+  Hashtbl.fold (fun label liveness acc ->
+    acc && (Hashtbl.find_opt lt2 label = Some liveness)
+  ) lt1 true
+  && Hashtbl.fold (fun label liveness acc ->
+    acc && (Hashtbl.find_opt lt1 label = Some liveness)
+  ) lt2 true
 
 
 let merge_sets (ls: def_use list) : def_use =
@@ -90,10 +100,8 @@ let compute_use_def_table (g: MiniRisc_cfg.miniRisc_cfg) : (Param_cfg.label, def
 let show_use_def_table (udt: (Param_cfg.label, def_use) Hashtbl.t) = 
   Hashtbl.iter (fun label {def; use} ->
     Printf.printf "%d ->\n\tdef: %s\n\tuse: %s\n"
-    label
-    (show_set def)
-    (show_set use)
-    ) udt
+    label (show_set def) (show_set use)
+  ) udt
 
 let iteration 
   (cfg: MiniRisc_cfg.miniRisc_cfg) 
@@ -133,15 +141,6 @@ let iteration
   in (* print_endline ("Iteration:\n" ^ show_liveness_table lt ^ "\n"); *)
   lt
 
-
-
-let equal_liveness_table lt1 lt2 =
-  Hashtbl.fold (fun label liveness acc ->
-    acc && (Hashtbl.find_opt lt2 label = Some liveness)
-  ) lt1 true
-  && Hashtbl.fold (fun label liveness acc ->
-    acc && (Hashtbl.find_opt lt1 label = Some liveness)
-  ) lt2 true
 
 
 let fixpoint 
