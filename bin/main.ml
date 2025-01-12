@@ -68,7 +68,7 @@ let () =
 
     let g1 = if !optimize then
       (* Liveness - live ranges *)
-      let _udt = Lib.Liveness.compute_use_def_table g in
+      let _udt = Lib.Use_def_table.compute_use_def_table g in
       let lt = Lib.Liveness.liveness_analysis g in
       let lrt = Lib.Interference_graph.compute_live_ranges lt in
  
