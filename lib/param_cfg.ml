@@ -36,7 +36,7 @@ let add_node (cfg: 'a cfg) (node: 'a node) : 'a cfg =
   match List.mem node cfg.nodes with
   | true -> cfg
   | false -> { nodes = node::cfg.nodes; edges = cfg.edges } 
-  (* because of orecursive definiton of lists, labels are put in reversed order*)
+  (* because of recursive definiton of lists, labels are put in reversed order*)
 
 (* Add an (oriented) edge to the CFG *)
 let add_edge (cfg: 'a cfg) (id1: label) (id2: label) : 'a cfg = 
