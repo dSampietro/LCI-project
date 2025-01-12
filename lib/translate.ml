@@ -97,11 +97,11 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: 
       (code1 @ code2 @ [AndR(reg1, reg2, regDest)], regDest) 
     
     (* constant folding NOT with bool immediate *)
-    | Not(Bval(true) ->
+    | Not(Bval(true)) ->
       let regDest = check_exist_reg reg_var in
       ([LoadI(bool_false, regDest)], regDest)
 
-    | Not(Bval(false) ->
+    | Not(Bval(false)) ->
       let regDest = check_exist_reg reg_var in
       ([LoadI(bool_true, regDest)], regDest)
 
@@ -159,7 +159,7 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
     let code2 = stmt_translate env s2 in
     code1 @ code2
 
-  (* simplify control flow for trivial condition *)
+  (* Simplified control flow for trivial condition *)
   | If(Bval(true), then_stmt, _) -> 
     let then_code = stmt_translate env then_stmt in
     then_code
