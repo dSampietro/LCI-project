@@ -117,7 +117,7 @@ let get_degree_table (g: interf_graph) : degree_table =
 
   table
 
-let show_degree_table (nt: degree_table) =
+let _show_degree_table (nt: degree_table) =
   print_endline ("\n\nNeighbor table\n");
   Printf.printf "Size: %d\n" (Hashtbl.length nt);
   Hashtbl.iter ( fun label num ->

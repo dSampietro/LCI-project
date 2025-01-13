@@ -8,10 +8,6 @@ type interf_graph
 val build_interf_graph: liverange_table -> interf_graph 
 val show_intf_graph: interf_graph -> unit
 
-val get_degree_table: interf_graph -> (Param_cfg.label, int) Hashtbl.t 
-val show_degree_table: (Param_cfg.label, int) Hashtbl.t -> unit
-
-
 
 type color = int
 type color_table = (Register.register, color) Hashtbl.t
