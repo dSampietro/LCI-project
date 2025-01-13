@@ -68,7 +68,7 @@ let () =
 
     let g1 = if !optimize then
       (* Liveness - live ranges *)
-      let _udt = Lib.Use_def_table.compute_use_def_table g in
+      (*let _udt = Lib.Use_def_table.compute_use_def_table g in*)
       let lt = Lib.Liveness.liveness_analysis g in
       let lrt = Lib.Interference_graph.compute_live_ranges lt in
  
@@ -76,21 +76,13 @@ let () =
       let int_g = Lib.Interference_graph.build_interf_graph lrt in
     
       (* k-coloring*)
-      let k = !num_reg - 2 in
+      (* use num_reg-1 colors since at every time we need at least 1 free regs to handle the spilling *)
+      let k = !num_reg - 1 in
       let current_state = Lib.Interference_graph.kcoloring int_g k
       in 
-      (*
-      Lib.Interference_graph.show_color_table ct;
-      Lib.Interference_graph.show_spill_table st;
-      *)
 
       (* reg allocation *)
-      (*Lib.Allocation_v3.reg_allocation g ct st*)
-      Lib.Allocation_v4.reg_allocation g k current_state
-      (*
-      let g1 = Lib.Allocation_v3.reg_allocation g ct st
-      in Lib.MiniRisc_cfg.pp_cfg g1;
-      *)
+      Lib.Allocation_v4.reg_allocation g !num_reg current_state
     else
       g
 
