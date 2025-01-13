@@ -8,9 +8,9 @@ let get_boolean_integer (b: bool): int =
 
 
 let check_exist_reg (reg_var: Register.register option) =
-    match reg_var with 
-    | Some(r) -> r
-    | None -> Register.get_new_register ()
+  match reg_var with 
+  | Some(r) -> r
+  | None -> Register.get_new_register ()
 
 let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: Register.register option) : (MiniRisc.exp list * Register.register) = 
   match e with
@@ -43,6 +43,21 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: 
     | Minus(Aval(n), Aval(m)) -> 
       let regDest = check_exist_reg reg_var in
       ([LoadI(n-m, regDest)], regDest)
+
+    
+    (* 
+    problem for x = 1 - x 
+    => LoadI 1 r2
+       SubR r2 r2 r2
+    => collapse to 0
+    
+    solution: (n - x) => (-x + n) 
+    *)
+    | Minus(Aval(n), Var(x)) -> 
+      let _, reg1 = exp_translate env (Var(x)) reg_var in
+      let nr1 = Register.get_new_register () in
+      let regDest = check_exist_reg reg_var in
+      ([NotR(reg1, nr1) ; AddI(nr1, n, regDest)], regDest)
     
     | Minus(Var(x), Aval(n)) -> 
       let _, reg1 = exp_translate env (Var(x)) reg_var in
@@ -116,14 +131,6 @@ let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: 
       let code2, reg2 = exp_translate env e2 reg_var in
       let regDest = check_exist_reg reg_var in
       (code1 @ code2 @ [LessR(reg1, reg2, regDest)], regDest)
-     
-
-(* 
-problem for x = 1 - x 
-=> LoadI 1 r2
-   SubR r2 r2 r2
-collapse to 0
-*)
 
 
 
@@ -131,12 +138,12 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
   match s with
   | Skip -> [Nop]
 
-  (*Report: optimize assign of immediates*)
+  (* optimize assign of int immediates*)
   | Assign(id, Aval(n)) -> 
     let reg_var = (Register.lookup_or_add env id) in
     [LoadI(n, reg_var)]
 
-  (*Report: optimize assign of bool immediates*)
+  (* optimize assign of bool immediates*)
   | Assign(id, Bval(b)) -> 
     let reg_var = (Register.lookup_or_add env id) in
     let value = get_boolean_integer b in
