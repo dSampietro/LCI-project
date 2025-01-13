@@ -1,4 +1,3 @@
-(*module RegisterSet = Set.Make(Int)*)
 module RegisterSet = Register_set.RegisterSet
 
 let lookup_table (lt: (Param_cfg.label, 'a) Hashtbl.t) (id: Param_cfg.label): 'a =
