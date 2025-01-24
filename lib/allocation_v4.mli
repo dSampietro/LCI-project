@@ -1,1 +1,0 @@
-val reg_allocation: MiniRisc_cfg.miniRisc_cfg -> int -> Register_state.reg_state -> MiniRisc_cfg.miniRisc_cfg
