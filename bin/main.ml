@@ -43,7 +43,7 @@ let usage_msg = "Usage: compiler [-init_check] [-optimize] [-r <num_reg>] [-o <o
 let init_check = ref false
 let optimize = ref false
 let num_reg = ref 4 
-let output_name = ref "a"
+let output_file = ref "a.minirisc"
 let input_file = ref ""
 
 let anon_fun filename = 
@@ -53,12 +53,14 @@ let options = [
   ("--init_check", Arg.Set init_check, "Enable init check");
   ("--optimize", Arg.Set optimize, "Enable optimization");
   ("-r", Arg.Set_int num_reg, "Number of registers");
-  ("-o", Arg.Set_string output_name, "Output file");
+  ("-o", Arg.Set_string output_file, "Output file");
 ]
 
 
 let () = 
   Arg.parse options anon_fun usage_msg;
+
+    if !input_file = "" then print_endline ("No input file provided");
 
     let Main(inp, out, p) = parse !input_file in
     let g = Lib.Generate.program_to_cfg p in
@@ -82,7 +84,7 @@ let () =
       in 
 
       (* reg allocation *)
-      Lib.Allocation_v4.reg_allocation g !num_reg current_state
+      Lib.Allocation.reg_allocation g !num_reg current_state
     else
       g
 
@@ -90,6 +92,6 @@ let () =
     let final_code = Lib.Save_code.codegen g1 in
     List.iter (fun x -> print_endline x) final_code;
 
-    let output_file = open_out (!output_name ^ ".minirisc") in
+    let output_file = open_out (!output_file) in
     List.iter (fun x -> output_string output_file (x ^ "\n")) final_code;
     close_out output_file
