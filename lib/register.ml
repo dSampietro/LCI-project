@@ -28,6 +28,13 @@ let get_new_label () : label =
 (* reg_table is an Hashtbl because we need in-place mutability *)
 type register_table = (string, register) Hashtbl.t
 
+let show_register_table (rt: register_table) =
+  print_endline "Register Table:";
+  Hashtbl.iter (fun k v -> print_endline @@ k ^ " -> " ^ (string_of_register v)) rt;
+  print_endline ""
+
+
+(* Create a new register table *)
 let new_table (n: int) : register_table = Hashtbl.create n
 
 (* Update the value of a variable in memory *)

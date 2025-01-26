@@ -6,7 +6,9 @@ val get_new_register: unit -> register
 type label = string
 val get_new_label: unit -> label
 
-type register_table
+type register_table = (string, register) Hashtbl.t
+val show_register_table: register_table -> unit
+
 val new_table: int -> register_table
 val lookup: register_table -> string -> register option
 val lookup_or_add: register_table -> string -> register
