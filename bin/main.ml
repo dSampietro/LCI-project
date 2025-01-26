@@ -63,7 +63,15 @@ let () =
     if !input_file = "" then print_endline ("No input file provided");
 
     let Main(inp, out, p) = parse !input_file in
+
+    (* MiniImp -> MiniImp CFG*)
     let g = Lib.Generate.program_to_cfg p in
+    Lib.MiniImp_cfg.pp_cfg g;
+
+    (* Defined variables analysis *)
+    if !init_check then Lib.Defined_var.defined_vars_analysis g inp;
+
+    (* MiniImp CFG -> MiniRisc CFG *)
     let g = Lib.Translate_cfg.translate_cfg g (inp, out) in
     Lib.MiniRisc_cfg.pp_cfg g;
 
