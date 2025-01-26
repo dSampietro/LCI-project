@@ -3,9 +3,10 @@ open MiniImp_cfg
 open MiniRisc_cfg
 open Register
 
-let map_node (reg_table: register_table) (node: miniImp_instr node) : miniRisc_instr node =
+let map_node (reg_table: register_table) (node: miniImp_instr node) : miniRisc_instr node =  
   let c1 = match node.content with
-    | Statement(stmt) -> Translate.stmt_translate reg_table stmt
+    | Statement(stmt) -> 
+      Translate.stmt_translate reg_table stmt
     | Expression(exp) -> 
       let e1, rdest = Translate.exp_translate reg_table exp None in
       e1 @ [MiniRisc.CJump(rdest, "_", "_")]
