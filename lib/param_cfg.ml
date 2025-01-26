@@ -3,7 +3,6 @@
 type label = int
 
 let label_counter = ref(-1)
-
 let fresh_id (): int = 
   incr label_counter;
   !label_counter
