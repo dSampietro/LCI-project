@@ -59,13 +59,15 @@ let reg_allocation
     let load_register (current_state: Register_state.reg_state) vreg =
       match Hashtbl.find_opt current_state vreg with
       | Some(`Physical(phys_reg)) -> 
+
+        (* remove the phys_reg from the used and place as last *)
+        in_use := (List.filter (fun r -> r <> phys_reg) !in_use) @ [phys_reg];
         Register_state.update_register_state current_state vreg (`Physical(phys_reg)); (* probalby is redundant, but here for consistency*)
         [], phys_reg
       | Some(`Memory(addr)) ->
         let spill_code, phys_reg = allocate_temp_register current_state in
-        (*
-        in_use := !in_use @ [phys_reg];
-        *)
+        
+        in_use := (List.filter (fun r -> r <> phys_reg) !in_use) @ [phys_reg];
 
         Printf.printf "Loading v%s in %s\n" (Register.string_of_register vreg) (Register.string_of_register phys_reg);
         Register_state.update_register_state current_state vreg (`Physical(phys_reg));
