@@ -12,7 +12,11 @@ let check_exist_reg (reg_var: Register.register option) =
   | Some(r) -> r
   | None -> Register.get_new_register ()
 
-let rec exp_translate (env: Register.register_table) (e: MiniImp.exp) (reg_var: Register.register option) : (MiniRisc.exp list * Register.register) = 
+let rec exp_translate 
+(env: Register.register_table) 
+(e: MiniImp.exp)
+(reg_var: Register.register option)
+: (MiniRisc.exp list * Register.register) = 
   match e with
     | Var(x) ->
       (match (Register.lookup env x) with
@@ -175,13 +179,22 @@ let rec stmt_translate (env: Register.register_table) (s: MiniImp.stmt) : MiniRi
     let else_code = stmt_translate env else_stmt in
     else_code
 
+
   | If(cond, then_stmt, else_stmt) -> 
+    print_endline("If");
     let cond_code, cond_reg = exp_translate env cond None in
+
+    (* use un-modified env in the branches *)
+    let then_env = Hashtbl.copy env in
+    let else_env = Hashtbl.copy env in
+    
     let then_label = Register.get_new_label () in
     let else_label = Register.get_new_label () in
     let end_label = Register.get_new_label () in
-    let then_code = stmt_translate env then_stmt in
-    let else_code = stmt_translate env else_stmt in
+    
+    let then_code = stmt_translate then_env then_stmt in
+    let else_code = stmt_translate else_env else_stmt in
+    
     cond_code @
     [CJump (cond_reg, then_label, else_label)] @
     [Label then_label] @ then_code @ [Jump end_label] @ 
